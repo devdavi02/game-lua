@@ -1,0 +1,9 @@
+{
+    "Lua.runtime.version": "LuaJIT",
+    "Lua.workspace.library": [
+        "/home/davi/Documents/projeto de tcc/love-api-master"
+    ],
+    "Lua.diagnostics.globals": [
+        "love"
+    ]
+}
