@@ -1,5 +1,5 @@
 local Gamestate = require 'lib.gamestate'
-local activity1 = require 'states.activity-1'
+local activity1 = require 'states.activities.activity-1'
 
 local listGames = {}
 
