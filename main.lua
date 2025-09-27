@@ -1,4 +1,5 @@
 local Gamestate = require 'lib.gamestate'
+local json = require 'lib.json'
 
 -- Carregue os diferentes estados
 local menu = require 'states.menu'
@@ -34,5 +35,11 @@ end
 function love.mousemoved(x, y, dx, dy)
     if Gamestate.mousemoved then
         Gamestate.mousemoved(x, y, dx, dy)
+    end
+end
+
+function love.textinput(t)
+    if Gamestate.textinput then
+        Gamestate.textinput(t)
     end
 end

@@ -1,11 +1,14 @@
 local Gamestate = require 'lib.gamestate'
 local listGames = require 'states.list-games'
 local config = require 'states.config'
+local cadastroAluno = require 'states.cadastro-aluno'
+local listaAlunos = require 'states.lista-alunos'
 
 local menu = {}
 
 local buttons = {
-    {label = "Começar", y = 0, hovered = false},
+    {label = "Cadastrar Aluno", y = 0, hovered = false},
+    {label = "Entrar no Perfil de Aluno", y = 0, hovered = false},
     {label = "Opções", y = 0, hovered = false}
 }
 local selected = 1
@@ -15,7 +18,6 @@ local dev_name = "Desenvolvedor: Seu Nome"
 local background
 
 function menu:enter()
-    -- Carregue a imagem de fundo (faça isso só uma vez)
     if not background then
         background = love.graphics.newImage("/assets/images/background.png")
     end
@@ -46,7 +48,7 @@ function menu:draw()
     -- Botões centralizados
     love.graphics.setFont(love.graphics.newFont(28))
     for i, btn in ipairs(buttons) do
-        local btnW, btnH = 220, 50
+        local btnW, btnH = 320, 50
         local x = (screenW - btnW) / 2
         local y = btn.y
         -- Destaque se selecionado ou hover
@@ -81,7 +83,7 @@ end
 
 function menu:mousemoved(x, y, dx, dy)
     local screenW = love.graphics.getWidth()
-    local btnW, btnH = 220, 50
+    local btnW, btnH = 320, 50
     for i, btn in ipairs(buttons) do
         local bx = (screenW - btnW) / 2
         local by = btn.y
@@ -107,9 +109,11 @@ end
 
 function menu:activate(idx)
     if idx == 1 then
-        Gamestate.switch(listGames)
+        Gamestate.switch(cadastroAluno)
     elseif idx == 2 then
-        Gamestate.switch(config) -- Troca para o menu de opções
+        Gamestate.switch(listaAlunos)
+    elseif idx == 3 then
+        Gamestate.switch(config)
     end
 end
 

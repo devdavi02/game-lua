@@ -1,5 +1,6 @@
 local Gamestate = require 'lib.gamestate'
 local activity1 = require 'states.activities.activity-1'
+local session = require 'session'
 
 local listGames = {}
 
@@ -147,5 +148,7 @@ function listGames:mousepressed(x, y, button)
         end
     end
 end
+
+print("Aluno logado:", session.aluno and session.aluno.nome)
 
 return listGames
