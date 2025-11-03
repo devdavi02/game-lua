@@ -121,14 +121,20 @@ function cadastroAluno:mousepressed(x, y, button)
     end
 end
 
+local function trim(s)
+    return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 function cadastroAluno:salvarAluno()
     -- Validação simples (pode ser expandida)
     for _, campo in ipairs(campos) do
-        if campo.valor == "" then
+        if trim(campo.valor) == "" then
             mensagem = "Preencha todos os campos!"
             return
         end
     end
+
+    local novoNome = trim(campos[1].valor):lower()
 
     -- Carrega alunos existentes
     local alunos = {}
@@ -137,10 +143,17 @@ function cadastroAluno:salvarAluno()
         alunos = json.decode(conteudo) or {}
     end
 
+    -- Verifica se já existe aluno com mesmo nome (case-insensitive)
+    for _, a in ipairs(alunos) do
+        if a.nome and trim(tostring(a.nome)):lower() == novoNome then
+            mensagem = "Nome já cadastrado!"
+            return
+        end
+    end
+
     -- Gera novo id (incremental)
     local novoId = 1
     if #alunos > 0 then
-        -- Procura o maior id já cadastrado
         for _, aluno in ipairs(alunos) do
             if aluno.id and aluno.id >= novoId then
                 novoId = aluno.id + 1
@@ -151,8 +164,8 @@ function cadastroAluno:salvarAluno()
     -- Cria novo objeto aluno
     local novoAluno = {
         id = novoId,
-        nome = campos[1].valor,
-        idade = campos[2].valor
+        nome = trim(campos[1].valor),
+        idade = trim(campos[2].valor)
     }
     table.insert(alunos, novoAluno)
 
@@ -160,16 +173,17 @@ function cadastroAluno:salvarAluno()
     local dados = json.encode(alunos, { indent = true })
     love.filesystem.write(arquivo, dados)
     if love.filesystem.getInfo(arquivo) then
+        -- cadastro ok: limpa campos e volta ao menu
         mensagem = "Aluno cadastrado com sucesso!"
+        for i, campo in ipairs(campos) do
+            campo.valor = ""
+        end
+        campos[1].foco = true
+        campoSelecionado = 1
+        Gamestate.switch(require 'states.menu')
     else
         mensagem = "Erro ao criar o arquivo de alunos!"
     end
-    -- Limpa campos
-    for i, campo in ipairs(campos) do
-        campo.valor = ""
-    end
-    campos[1].foco = true
-    campoSelecionado = 1
 end
 
 print(love.filesystem.getSaveDirectory())

@@ -1,5 +1,8 @@
 local Gamestate = require 'lib.gamestate'
+local json = require 'lib.json'
+local session = require 'session'
 local activity1 = {}
+local Confetti = require 'states.confetti'
 
 local animals = {
     {name = "cachorro", image = "assets/images/cachorro.png", syllables = 3},
@@ -22,11 +25,19 @@ local buttons = {}
 local backBtn = {x = 20, y = 20, w = 100, h = 40}
 local fim = false
 
+-- Relatório
+local acertos = 0
+local erros = 0
+local tentativas = 0
+local tempoInicio = 0
+local tempoFim = 0
+
 local function nextAnimal()
     if #animalPool == 0 then
         fim = true
         currentAnimal = nil
         currentImage = nil
+        tempoFim = love.timer.getTime()
         return
     end
     local idx = love.math.random(#animalPool)
@@ -42,32 +53,64 @@ local function nextAnimal()
 end
 
 function activity1:enter()
+    -- Carrega o background
+    if not background then
+        background = love.graphics.newImage("/assets/images/fundoatividade1.png")
+    end
     -- reinicia pool e estado
     animalPool = {}
     for i, v in ipairs(animals) do
         animalPool[i] = v
     end
     fim = false
+    acertos = 0
+    erros = 0
+    tentativas = 0
+    tempoInicio = love.timer.getTime()
+    tempoFim = 0
     nextAnimal()
-    -- cria botões de sílabas (1 até 5)
+    -- Centraliza botões de sílabas na horizontal
     buttons = {}
+    local btnW, btnH = 60, 60
+    local totalW = 5 * btnW + 4 * 20 -- 5 botões, 20px de espaço entre eles
+    local startX = (love.graphics.getWidth() - totalW) / 2
+    local y = 400
     for i = 1, 5 do
         table.insert(buttons, {
-            x = 100 + (i-1)*80,
-            y = 400,
-            w = 60,
-            h = 60,
+            x = startX + (i-1)*(btnW + 20),
+            y = y,
+            w = btnW,
+            h = btnH,
             number = i
         })
     end
+    confetti = Confetti.new(300)
 end
 
 function activity1:draw()
     local screenW, screenH = love.graphics.getWidth(), love.graphics.getHeight()
+    -- Adiciona o background
+    if background then
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(background, 0, 0, 0, screenW / background:getWidth(), screenH / background:getHeight())
+    end
 
     if fim then
+        local tempoGasto = math.floor((tempoFim - tempoInicio))
+        -- Mensagem de finalização com fonte um pouco menor e espaçamento maior
+        love.graphics.setFont(love.graphics.newFont(38))
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.printf("Parabéns! Você terminou todas as palavras!", 0, screenH/2 - 140, screenW, "center")
+        love.graphics.setFont(love.graphics.newFont(22))
+        love.graphics.printf(
+            "Relatório:\nAcertos: " .. acertos ..
+            "\nErros: " .. erros ..
+            "\nTentativas: " .. tentativas ..
+            "\nTempo gasto: " .. tempoGasto .. " segundos",
+            0, screenH/2, screenW, "center"
+        )
+        love.graphics.setFont(love.graphics.newFont(12))
         love.graphics.setColor(1, 1, 1)
-        love.graphics.printf("Parabéns! Você terminou todas as palavras!", 0, screenH/2, screenW, "center")
         return
     end
 
@@ -85,15 +128,19 @@ function activity1:draw()
         love.graphics.printf("Imagem não encontrada!", 0, 120, screenW, "center")
     end
 
-    -- Nome do animal (opcional)
-    -- love.graphics.setColor(0,0,0)
-    -- love.graphics.printf(currentAnimal.name, 0, 80, screenW, "center")
-
     -- Desenha botões
-    love.graphics.setColor(1, 1, 1)
     for _, btn in ipairs(buttons) do
+        -- Botão preenchido branco
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.rectangle("fill", btn.x, btn.y, btn.w, btn.h)
+        -- Borda preta
+        love.graphics.setColor(0, 0, 0)
         love.graphics.rectangle("line", btn.x, btn.y, btn.w, btn.h)
-        love.graphics.printf(btn.number, btn.x, btn.y + 20, btn.w, "center")
+        -- Número preto centralizado
+        love.graphics.setFont(love.graphics.newFont(22))
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.printf(btn.number, btn.x, btn.y + 12, btn.w, "center")
+        love.graphics.setColor(1, 1, 1)
     end
 
     -- Botão Voltar
@@ -113,6 +160,8 @@ function activity1:draw()
         love.graphics.print("Tente de novo!", screenW/2 - 90, 350, 0, 2, 2)
         love.graphics.setColor(1, 1, 1)
     end
+
+    if confetti then confetti:draw() end
 end
 
 function activity1:mousepressed(x, y, button)
@@ -123,6 +172,7 @@ function activity1:mousepressed(x, y, button)
             return
         end
         if fim then
+            self:salvarRelatorio()
             Gamestate.switch(require 'states.list-games')
             return
         end
@@ -133,10 +183,14 @@ function activity1:mousepressed(x, y, button)
         -- Botões de sílabas
         for _, btn in ipairs(buttons) do
             if x > btn.x and x < btn.x + btn.w and y > btn.y and y < btn.y + btn.h then
+                tentativas = tentativas + 1
                 if btn.number == currentAnimal.syllables then
                     feedback = "correct"
+                    acertos = acertos + 1
+                    confetti:spawn(love.graphics.getWidth()/2, love.graphics.getHeight()/2, 120)
                 else
                     feedback = "wrong"
+                    erros = erros + 1
                 end
             end
         end
@@ -153,7 +207,44 @@ function activity1:keypressed(key)
         end
     elseif key == "space" and feedback == "correct" and not fim then
         nextAnimal()
+    elseif key == "space" and fim then
+        self:salvarRelatorio()
+        Gamestate.switch(require 'states.list-games')
     end
+end
+
+function activity1:update(dt)
+    if confetti then confetti:update(dt) end
+end
+
+function activity1:salvarRelatorio()
+    local tempoGasto = math.floor((tempoFim - tempoInicio))
+    local relatorio = {
+        aluno_id = session.aluno and session.aluno.id or nil,
+        aluno_nome = session.aluno and session.aluno.nome or nil,
+        acertos = acertos,
+        erros = erros,
+        tentativas = tentativas,
+        tempo = tempoGasto,
+        data = os.date("%Y-%m-%d %H:%M:%S")
+    }
+
+    local relatorios = {}
+    if love.filesystem.getInfo("relatorios.json") then
+        local conteudo = love.filesystem.read("relatorios.json")
+        relatorios = json.decode(conteudo) or {}
+    end
+    table.insert(relatorios, relatorio)
+    local dados = json.encode(relatorios, { indent = true })
+    love.filesystem.write("relatorios.json", dados)
+end
+
+function Confetti:spawn(x, y, count)
+    count = count or 100
+    local screenW, screenH = love.graphics.getWidth(), love.graphics.getHeight()
+    self.ps:setPosition(x or screenW/2, y or screenH/2) -- centro da tela
+    self.ps:setLinearAcceleration(-300, -300, 300, 300) -- espalha para todos os lados
+    self.ps:emit(count)
 end
 
 return activity1

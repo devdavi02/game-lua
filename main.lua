@@ -23,23 +23,26 @@ function love.draw()
 end
 
 function love.keypressed(key)
-    -- Passa o evento para o estado atual
-    Gamestate.keypressed(key)
+    if Gamestate.keypressed then Gamestate.keypressed(key) end
 end
 
--- Adicione outros callbacks do LÖVE conforme necessário (ex: love.mousepressed)
+-- encaminha eventos de mouse e roda do mouse para o gamestate
 function love.mousepressed(x, y, button)
-    Gamestate.mousepressed(x, y, button)
+    if Gamestate.mousepressed then Gamestate.mousepressed(x, y, button) end
+end
+
+function love.mousereleased(x, y, button)
+    if Gamestate.mousereleased then Gamestate.mousereleased(x, y, button) end
 end
 
 function love.mousemoved(x, y, dx, dy)
-    if Gamestate.mousemoved then
-        Gamestate.mousemoved(x, y, dx, dy)
-    end
+    if Gamestate.mousemoved then Gamestate.mousemoved(x, y, dx, dy) end
+end
+
+function love.wheelmoved(dx, dy)
+    if Gamestate.wheelmoved then Gamestate.wheelmoved(dx, dy) end
 end
 
 function love.textinput(t)
-    if Gamestate.textinput then
-        Gamestate.textinput(t)
-    end
+    if Gamestate.textinput then Gamestate.textinput(t) end
 end

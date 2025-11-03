@@ -47,8 +47,8 @@ function menu:draw()
 
     -- Botões centralizados
     love.graphics.setFont(love.graphics.newFont(28))
+    local btnW, btnH = 420, 50 -- Aumenta a largura do botão
     for i, btn in ipairs(buttons) do
-        local btnW, btnH = 320, 50
         local x = (screenW - btnW) / 2
         local y = btn.y
         -- Destaque se selecionado ou hover
@@ -83,7 +83,7 @@ end
 
 function menu:mousemoved(x, y, dx, dy)
     local screenW = love.graphics.getWidth()
-    local btnW, btnH = 320, 50
+    local btnW, btnH = 420, 50 -- Mesma largura dos botões
     for i, btn in ipairs(buttons) do
         local bx = (screenW - btnW) / 2
         local by = btn.y
