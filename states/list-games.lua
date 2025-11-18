@@ -1,13 +1,13 @@
 local Gamestate = require 'lib.gamestate'
 local activity1 = require 'states.activities.activity-1'
+local activity1Instr = require 'states.activity-1-instruction'
 local session = require 'session'
 
 local listGames = {}
 
 local games = {
     {label = "Jogo 1", hovered = false},
-    {label = "Jogo 2", hovered = false},
-    {label = "Jogo 3", hovered = false}
+    {label = "Jogo 2", hovered = false}
 }
 local selected = 1
 local dev_name = "Desenvolvedor: Seu Nome"
@@ -82,7 +82,7 @@ function listGames:keypressed(key)
         if selected > #games then selected = 1 end
     elseif key == "return" or key == "kpenter" then
         if selected == 1 then
-            Gamestate.switch(activity1)
+            Gamestate.switch(activity1Instr) -- redireciona para activity-1-instruction
         end
         -- Adicione lógica para outros jogos se desejar
     elseif key == "escape" then
@@ -133,7 +133,7 @@ function listGames:mousepressed(x, y, button)
             local by = startY + (i - 1) * (btnH + spacing)
             if x >= bx and x <= bx + btnW and y >= by and y <= by + btnH then
                 if i == 1 then
-                    Gamestate.switch(activity1)
+                    Gamestate.switch(activity1Instr) -- redireciona para activity-1-instruction
                 end
                 -- Adicione lógica para outros jogos se desejar
                 return
