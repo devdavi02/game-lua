@@ -1,14 +1,17 @@
 local Gamestate = require 'lib.gamestate'
-local listGames = require 'states.list-games'
 local config = require 'states.config'
-local cadastroAluno = require 'states.cadastro-aluno'
-local listaAlunos = require 'states.lista-alunos'
+local cadastroAluno = require 'states.register-classmate'
+local listaAlunos = require 'states.list-classmate'
+local deleteClassmate = require 'states.delete-classmate'
+local report = require 'states.report'
 
 local menu = {}
 
 local buttons = {
     {label = "Cadastrar Aluno", y = 0, hovered = false},
+    {label = "Deletar Aluno", y = 0, hovered = false},
     {label = "Entrar no Perfil de Aluno", y = 0, hovered = false},
+    {label = "Relatórios", y = 0, hovered = false},
     {label = "Opções", y = 0, hovered = false}
 }
 local selected = 1
@@ -111,8 +114,12 @@ function menu:activate(idx)
     if idx == 1 then
         Gamestate.switch(cadastroAluno)
     elseif idx == 2 then
-        Gamestate.switch(listaAlunos)
+        Gamestate.switch(deleteClassmate)
     elseif idx == 3 then
+        Gamestate.switch(listaAlunos)
+    elseif idx == 4 then
+        Gamestate.switch(report)
+    elseif idx == 5 then
         Gamestate.switch(config)
     end
 end

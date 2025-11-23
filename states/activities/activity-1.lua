@@ -22,9 +22,10 @@ local animalPool = {}
 local currentAnimal
 local currentImage
 local currentSound -- source atual
+local successSound -- som de acerto (novo)
 local feedback = nil
 local buttons = {}
-local playBtn = {x = 0, y = 0, w = 60, h = 60} -- botão de play (posição atualizada em draw)
+local playBtn = {x = 0, y = 0, w = 60, h = 60}
 local fim = false
 local isPlaying = false
 
@@ -105,6 +106,13 @@ function activity1:enter()
         })
     end
     confetti = Confetti.new(300)
+
+    -- carrega som de acerto (procura .ogg)
+    if not successSound then
+        if love.filesystem.getInfo("assets/sounds/applause.ogg") then
+            successSound = love.audio.newSource("assets/sounds/applause.ogg", "static")
+        end
+    end
 end
 
 function activity1:draw()
@@ -123,9 +131,9 @@ function activity1:draw()
         local boxH = 220
         local boxX = (screenW - boxW) / 2
         local boxY = screenH/2 - 160
-        love.graphics.setColor(1,1,1,0.95) -- fundo branco semitransparente
+        love.graphics.setColor(1,1,1,0.95)
         love.graphics.rectangle("fill", boxX, boxY, boxW, boxH, 12, 12)
-        love.graphics.setColor(0,0,0) -- borda preta
+        love.graphics.setColor(0,0,0)
         love.graphics.setLineWidth(2)
         love.graphics.rectangle("line", boxX, boxY, boxW, boxH, 12, 12)
 
@@ -134,6 +142,7 @@ function activity1:draw()
         love.graphics.setColor(0,0,0)
         love.graphics.printf("Parabéns! Você terminou todas as palavras!", boxX, boxY + 16, boxW, "center")
         love.graphics.setFont(love.graphics.newFont(22))
+        love.graphics.setColor(0, 0, 0)
         love.graphics.printf(
             "Relatório:\nAcertos: " .. acertos ..
             "\nErros: " .. erros ..
@@ -155,7 +164,7 @@ function activity1:draw()
         local scale = math.min(maxW/iw, maxH/ih, 1)
         imgWscaled = iw * scale
         imgHscaled = ih * scale
-        imgX = (screenW - imgWscaled)/2 - 120 -- ajustei para dar espaço ao lado esquerdo para o botão (altere se desejar)
+        imgX = (screenW - imgWscaled)/2 - 120 
         imgY = 100
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(currentImage, imgX, imgY, 0, scale, scale)
@@ -231,7 +240,7 @@ function activity1:draw()
 
         if feedback == "correct" then
             love.graphics.setColor(0,1,0)
-            love.graphics.print("Acertou! Clique ou pressione espaço para o próximo.", fbX + 16, fbY + 12, 0, 1.2, 1.2)
+            love.graphics.print("Você acertou! Clique ou pressione espaço para continuar.", fbX + 16, fbY + 12, 0, 1.2, 1.2)
         elseif feedback == "wrong" then
             love.graphics.setColor(1,0,0)
             love.graphics.print("Tente de novo!", fbX + 16, fbY + 14, 0, 1.4, 1.4)
@@ -262,8 +271,6 @@ function activity1:mousepressed(x, y, button)
             return
         end
 
-        -- Removed back button click handling (per request)
-
         if fim then
             self:salvarRelatorio()
             Gamestate.switch(require 'states.list-games')
@@ -281,6 +288,15 @@ function activity1:mousepressed(x, y, button)
                     feedback = "correct"
                     acertos = acertos + 1
                     confetti:spawn(love.graphics.getWidth()/2, love.graphics.getHeight()/2, 120)
+
+                    -- toca som de acerto
+                    if successSound then
+                        pcall(function()
+                            successSound:stop()
+                            successSound:play()
+                        end)
+                    end
+
                 else
                     feedback = "wrong"
                     erros = erros + 1
@@ -314,7 +330,6 @@ function activity1:update(dt)
     else
         isPlaying = false
     end
-    -- ...existing code...
 end
 
 function activity1:salvarRelatorio()
