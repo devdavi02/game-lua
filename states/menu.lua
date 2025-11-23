@@ -15,8 +15,8 @@ local buttons = {
     {label = "Opções", y = 0, hovered = false}
 }
 local selected = 1
-local title = "Nome Provisório"
-local dev_name = "Desenvolvedor: Seu Nome"
+local title = "Sílaba Safari"
+local dev_name = "Desenvolvedor: Davi Ribeiro"
 
 local background
 
@@ -46,6 +46,7 @@ function menu:draw()
 
     -- Título centralizado
     love.graphics.setFont(love.graphics.newFont(36))
+    love.graphics.setColor(0, 0, 0)
     love.graphics.printf(title, 0, 80, screenW, "center")
 
     -- Botões centralizados
@@ -68,7 +69,7 @@ function menu:draw()
 
     -- Nome do desenvolvedor no canto inferior esquerdo
     love.graphics.setFont(love.graphics.newFont(16))
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(0, 0, 0)
     love.graphics.print(dev_name, 10, screenH - 30)
 end
 

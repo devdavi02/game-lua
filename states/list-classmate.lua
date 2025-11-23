@@ -120,7 +120,7 @@ function listaAlunos:mousepressed(x, y, button)
             local drawY = btn.y - scrollY
             if x > btn.x and x < btn.x + btn.w and y > drawY and y < drawY + btn.h then
                 session.aluno = btn.aluno
-                Gamestate.switch(require 'states.list-games')
+                Gamestate.switch(require 'states.activity-1-instruction')
                 return
             end
         end

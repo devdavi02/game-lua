@@ -39,6 +39,7 @@ function cadastroAluno:draw()
     end
     
     love.graphics.setFont(love.graphics.newFont(32))
+    love.graphics.setColor(0, 0, 0)
     love.graphics.printf("Cadastro de Aluno", 0, 60, screenW, "center")
 
     love.graphics.setFont(love.graphics.newFont(22))

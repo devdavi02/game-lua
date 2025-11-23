@@ -231,7 +231,7 @@ function activity1:draw()
     if feedback then
         local fbW, fbH = math.min(600, screenW - 120), 64
         local fbX = (screenW - fbW) / 2
-        local fbY = 340
+        local fbY = 300 -- Ajuste aqui para aumentar o espaço (valor original era 340)
         love.graphics.setColor(1,1,1,0.95)
         love.graphics.rectangle("fill", fbX, fbY, fbW, fbH, 10, 10)
         love.graphics.setColor(0,0,0)
@@ -240,7 +240,7 @@ function activity1:draw()
 
         if feedback == "correct" then
             love.graphics.setColor(0,1,0)
-            love.graphics.print("Você acertou! Clique ou pressione espaço para continuar.", fbX + 16, fbY + 12, 0, 1.2, 1.2)
+            love.graphics.printf("Você acertou!", fbX, fbY + (fbH / 2) - 10, fbW, "center")
         elseif feedback == "wrong" then
             love.graphics.setColor(1,0,0)
             love.graphics.print("Tente de novo!", fbX + 16, fbY + 14, 0, 1.4, 1.4)
@@ -273,7 +273,7 @@ function activity1:mousepressed(x, y, button)
 
         if fim then
             self:salvarRelatorio()
-            Gamestate.switch(require 'states.list-games')
+            Gamestate.switch(require 'states.menu')
             return
         end
         if feedback == "correct" then
@@ -312,13 +312,13 @@ function activity1:keypressed(key)
             love.window.setFullscreen(false)
             love.window.setMode(800, 600, {resizable = true})
         else
-            Gamestate.switch(require 'states.list-games')
+            Gamestate.switch(require 'states.menu')
         end
     elseif key == "space" and feedback == "correct" and not fim then
         nextAnimal()
     elseif key == "space" and fim then
         self:salvarRelatorio()
-        Gamestate.switch(require 'states.list-games')
+        Gamestate.switch(require 'states.menu')
     end
 end
 

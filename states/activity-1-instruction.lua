@@ -53,8 +53,8 @@ function instructions:draw()
     end
 
     love.graphics.setFont(love.graphics.newFont(34))
-    love.graphics.setColor(0,0,0)
-    love.graphics.printf("Instruções", 0, 60, screenW, "center")
+    love.graphics.setColor(1,1,1)
+    drawTextOutline("Instruções", screenW / 2 - 80, 60, love.graphics.getFont(), {1,1,1,1}, {0,0,0,1})
 
     love.graphics.setFont(love.graphics.newFont(20))
     local startY = 140
@@ -90,14 +90,14 @@ function instructions:mousepressed(x, y, button)
 
     -- Voltar -> list-games
     if x >= backBtn.x and x <= backBtn.x + backBtn.w and y >= backBtn.y and y <= backBtn.y + backBtn.h then
-        Gamestate.switch(require 'states.list-games')
+        Gamestate.switch(require 'states.menu')
         return
     end
 end
 
 function instructions:keypressed(key)
     if key == "escape" then
-        Gamestate.switch(require 'states.list-games')
+        Gamestate.switch(require 'states.menu')
     elseif key == "return" or key == "kpenter" then
         Gamestate.switch(require 'states.activities.activity-1')
     end
